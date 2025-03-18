@@ -37,7 +37,7 @@ load_seurat_obj<- function(path) {
   return(obj)
 }
 
-create_da_table <- function(data,region) {
+create_da_table <- function(data) {
   da_peaks <- FindMarkers(
     object = data,
     ident.1 = rownames(data[[]][data$dataset == "aged",]),
@@ -54,7 +54,7 @@ create_da_table <- function(data,region) {
 
 
 create_accessibility_plot <- function(obj, region) {
-  req(region)  # Ensure the region is selected
+  req(region)
   
   # Extract Data from Seurat object
   plot_data <- obj@assays$peaks@data[region, , drop = FALSE]
@@ -89,6 +89,8 @@ create_accessibility_plot <- function(obj, region) {
 }
 
 create_coverage_plot <- function(obj, region){
+  req(region)
+  
   coverage_plot<-CoveragePlot(
     object = obj,
     region = region,
@@ -97,4 +99,36 @@ create_coverage_plot <- function(obj, region){
     group.by = "dataset"
   )
   return(coverage_plot)
+}
+
+create_metadata_UMAP <- function(obj,col){
+  if (col %in% c("nCount_RNA", "nFeature_RNA", "percent.mt")){
+    col_df <- data.frame(obj@reductions$umap@cell.embeddings, data = obj@meta.data[,col])
+    umap <- ggplot(data = col_df) +
+      geom_point(mapping = aes(umap_1, umap_2, color = log10(data)), size = 0.01) +
+      scale_colour_gradientn(colours = rainbow(7))
+    
+  } else if (col %in% colnames(obj@meta.data)) {
+    umap <- DimPlot(obj, pt.size = .1, label = F, label.size = 4, group.by = col, reduction = "umap")
+  } else {
+    umap <- ggplot() +
+      theme_void() +
+      geom_text(aes(x = 0.5, y = 0.5, label = "col doesn't exist"), size = 20, color = "gray73", fontface = "bold") +
+      theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+  }
+  return(umap)
+}
+
+
+create_feature_plot <- function(obj, gene) {
+  if (gene %in% rownames(obj)) {
+    FP <- FeaturePlot(obj, features = gene, pt.size = 0.001, combine = FALSE)
+  } else {
+    FP <- ggplot() +
+      theme_void() +
+      geom_text(aes(x = 0.5, y = 0.5, label = "Gene doesn't exist"), size = 20, color = "gray73", fontface = "bold") +
+      theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+  }
+  return(FP)
+  
 }

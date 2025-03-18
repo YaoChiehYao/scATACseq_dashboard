@@ -121,60 +121,60 @@ DefaultAssay(data) <- 'peaks'
 
 ##### ------ Making Scaled Data for testing  ------ #######
 
-# downsample_seurat <- function(seurat_obj, fraction = 1/3) {
-#   set.seed(123) 
-#   cells <- Cells(seurat_obj)
-#   total_cells <- length(cells)
-#   
-#   if (total_cells == 0) {
-#     stop("Error: No cells found in the Seurat object.")
-#   }
-#   
-#   sampled_cells <- sample(cells, size = round(total_cells * fraction), replace = FALSE)
-#   
-#   seurat_obj <- subset(seurat_obj, cells = sampled_cells)
-#   
-#   return(seurat_obj)
-# }
-# 
-# filter_low_variance_features <- function(seurat_obj, nfeatures = 2000) {
-#   if (!inherits(seurat_obj, "Seurat")) {
-#     stop("Error: Input is not a Seurat object.")
-#   }
-#   
-#   DefaultAssay(seurat_obj) <- "peaks"
-#   
-#   total_features <- nrow(seurat_obj[["peaks"]]@counts)
-#   
-#   if (total_features < nfeatures) {
-#     warning("Fewer than ", nfeatures, " features available; keeping all features.")
-#     var_features <- rownames(seurat_obj[["peaks"]])
-#   } else {
-#     seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = nfeatures)
-#     var_features <- VariableFeatures(seurat_obj) 
-#   }
-#   
-#   seurat_obj <- subset(seurat_obj, features = var_features)
-#   
-#   return(seurat_obj)
-# }
-# 
-# save_reduced_seurat <- function(seurat_obj, output_path = "small_seurat.rds") {
-#   if (!inherits(seurat_obj, "Seurat")) {
-#     stop("Error: The object to save is not a Seurat object.")
-#   }
-#   
-#   saveRDS(seurat_obj, file = output_path)
-#   print(paste("Saved reduced Seurat object to:", output_path))
-# }
-# 
-# seurat_obj <- readRDS("processed_data.rds")
-# 
-# seurat_obj <- downsample_seurat(seurat_obj, fraction = 1/3)
-# 
-# seurat_obj <- filter_low_variance_features(seurat_obj, nfeatures = 2000)
-# 
-# save_reduced_seurat(seurat_obj, "small_seurat.rds")
+downsample_seurat <- function(seurat_obj, fraction = 1/3) {
+  set.seed(123)
+  cells <- Cells(seurat_obj)
+  total_cells <- length(cells)
+
+  if (total_cells == 0) {
+    stop("Error: No cells found in the Seurat object.")
+  }
+
+  sampled_cells <- sample(cells, size = round(total_cells * fraction), replace = FALSE)
+
+  seurat_obj <- subset(seurat_obj, cells = sampled_cells)
+
+  return(seurat_obj)
+}
+
+filter_low_variance_features <- function(seurat_obj, nfeatures = 2000) {
+  if (!inherits(seurat_obj, "Seurat")) {
+    stop("Error: Input is not a Seurat object.")
+  }
+
+  DefaultAssay(seurat_obj) <- "peaks"
+
+  total_features <- nrow(seurat_obj[["peaks"]]@counts)
+
+  if (total_features < nfeatures) {
+    warning("Fewer than ", nfeatures, " features available; keeping all features.")
+    var_features <- rownames(seurat_obj[["peaks"]])
+  } else {
+    seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = nfeatures)
+    var_features <- VariableFeatures(seurat_obj)
+  }
+
+  seurat_obj <- subset(seurat_obj, features = var_features)
+
+  return(seurat_obj)
+}
+
+save_reduced_seurat <- function(seurat_obj, output_path = "small_seurat.rds") {
+  if (!inherits(seurat_obj, "Seurat")) {
+    stop("Error: The object to save is not a Seurat object.")
+  }
+
+  saveRDS(seurat_obj, file = output_path)
+  print(paste("Saved reduced Seurat object to:", output_path))
+}
+
+seurat_obj <- readRDS("processed_data.rds")
+
+seurat_obj <- downsample_seurat(seurat_obj, fraction = 1/3)
+
+seurat_obj <- filter_low_variance_features(seurat_obj, nfeatures = 2000)
+
+save_reduced_seurat(seurat_obj, "small_seurat.rds")
 
 ##### ------ Making Scaled Data for testing  ------ #######
 
